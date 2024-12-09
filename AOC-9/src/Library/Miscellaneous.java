@@ -68,4 +68,10 @@ public class Miscellaneous {
         }
         return median;
     }
+
+    public static char representInt(int value) {
+        char[] chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+        int modValue = value % chars.length;
+        return chars[modValue];
+    }
 }

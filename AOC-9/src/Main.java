@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         // Determine relevant values based on current problem phase
         Function<Input, Long> solve;
-        Long sampleResult;
+        Long sampleResult = null;
         if (Inputs.phase == 1) {
             solve = solve1;
             sampleResult = Inputs.sampleResult1;
@@ -29,14 +29,20 @@ public class Main {
             System.out.println("# Found input data.");
             datasets ++;
         }
+        Input sampleOverride = null;
         if (Inputs.sampleData.isEmpty()) {
             System.out.println("# No sample data found.");
         } else if (!(sampleResult == null)) {
             System.out.println("# Found sample data and result.");
-            datasets ++;
+            datasets++;
         } else {
             System.out.println("# Found sample data without expected result.");
-            datasets ++;
+            datasets++;
+        }
+        if (!Inputs.sampleOverride.isEmpty()) {
+            sampleOverride = new Input(Inputs.sampleOverride);
+            System.out.println("# Sample override found. Original sample will run silently.");
+            datasets++;
         }
         if (datasets == 0) {
             return;
@@ -81,6 +87,7 @@ public class Main {
         }
 
         // Test from actual input data
+        IO.printable = false;
         Actual: if (!Inputs.trueData.isEmpty()) {
             System.out.println("\nEvaluating from problem input\n| ");
             long result = 0;

@@ -47,6 +47,26 @@ public class FreeList <T> {
         }
     }
 
+    public void insert(int index, T value) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        for (int j = data.size(); j <= index; j ++) {
+            data.add(null);
+        }
+        data.add(index, value);
+    }
+
+    public void remove(int index) {
+        if (index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (index >= data.size()) {
+            return;
+        }
+        data.remove(index);
+    }
+
     public void delete(int index) {
         set(index, null);
     }
@@ -68,5 +88,9 @@ public class FreeList <T> {
             }
         }
         return 0;
+    }
+
+    public String toString() {
+        return data.toString();
     }
 }
