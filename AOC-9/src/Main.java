@@ -42,6 +42,7 @@ public class Main {
         if (!Inputs.sampleOverride.isEmpty()) {
             sampleOverride = new Input(Inputs.sampleOverride);
             System.out.println("# Sample override found. Original sample will run silently.");
+            IO.printable = false;
             datasets++;
         }
         if (datasets == 0) {
@@ -84,6 +85,24 @@ public class Main {
             } else {
                 System.out.println("| Sample test returned " + result + ".");
             }
+        }
+
+        IO.printable = true;
+        SampleOverride: if (sampleOverride != null) {
+            System.out.println("\nTesting from override sample\n| ");
+            long result = 0;
+            IO.prints = 0;
+            try {
+                result = solve.apply(sampleOverride);
+            } catch (Exception e) {
+                IO.extraLine();
+                System.out.println("| Override sample test threw an exception.");
+                e.printStackTrace();
+                System.out.println("\n\n\n");
+                break SampleOverride;
+            }
+            IO.extraLine();
+            System.out.println("| Evaluation of override sample input: " + result + ".");
         }
 
         // Test from actual input data
