@@ -46,6 +46,22 @@ public class Point2 {
         this.y = v.y;
     }
 
+    public <T> T getValue(T[][] array) {
+        return array[this.y][this.x];
+    }
+
+    public int getValue(int[][] array) {
+        return array[this.y][this.x];
+    }
+
+    public <T> void setValue(T[][] array, T value) {
+        array[this.y][this.x] = value;
+    }
+
+    public void setValue(int[][] array, int value) {
+        array[this.y][this.x] = value;
+    }
+
     @Override
     public Point2 clone() {
         return new Point2(this);
