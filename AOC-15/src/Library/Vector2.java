@@ -69,6 +69,10 @@ public class Vector2 {
         return new Vector2(sumX, sumY);
     }
 
+    public Vector2 multiply(int scalar) {
+        return new Vector2(x * scalar, y * scalar);
+    }
+
     public Vector2(Vector2 v) {
         this.x = v.x;
         this.y = v.y;
