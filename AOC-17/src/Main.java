@@ -103,7 +103,7 @@ public class Main {
             IO.extraLineIfNecessary();
             Object expectedResult = sample.getB();
             if (expectedResult != null) {
-                if (result == expectedResult) {
+                if (result.equals(expectedResult)) {
                     System.out.println("| Sample test passed with " + result + ".");
                 } else {
                     System.out.println("| Sample test failed. Returned " + result + ".");
@@ -130,7 +130,7 @@ public class Main {
         }
 
         // Test from actual input data
-        IO.printable = false;
+        IO.printable = Inputs.printTrueData;
         Actual: if (!Inputs.trueData.isEmpty()) {
             TimeUnit.MILLISECONDS.sleep(delayInt);
 

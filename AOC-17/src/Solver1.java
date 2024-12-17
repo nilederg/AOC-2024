@@ -9,9 +9,9 @@ public class Solver1 {
     public static Object Evaluate(Input input) {
         long[][] data = input.getInts();
 
-        int registerA = (int) data[0][0];
-        int registerB = (int) data[1][0];
-        int registerC = (int) data[2][0];
+        long registerA = data[0][0];
+        long registerB = data[1][0];
+        long registerC = data[2][0];
 
         long[] opcodes = data[4];
 
@@ -21,7 +21,7 @@ public class Solver1 {
 
         while (pointer < opcodes.length) {
             int literalOperand = (int) opcodes[pointer + 1];
-            int comboOperand = switch (literalOperand) {
+            long comboOperand = switch (literalOperand) {
                 case 0 -> 0;
                 case 1 -> 1;
                 case 2 -> 2;
@@ -37,14 +37,7 @@ public class Solver1 {
             switch (opcode) {
                 case 0: {
                     // ADV
-                    double result = registerA / Library.Maths.powLong(2, comboOperand);
-                    if (result > Integer.MAX_VALUE) {
-                        registerA = Integer.MAX_VALUE;
-                    } else if (result < Integer.MIN_VALUE) {
-                        registerA = Integer.MIN_VALUE;
-                    } else {
-                        registerA = (int) result;
-                    }
+                    registerA = registerA >> comboOperand;
                     break;
                 }
                 case 1: {
@@ -54,7 +47,7 @@ public class Solver1 {
                 }
                 case 2: {
                     // BST
-                    registerB = comboOperand % 8;
+                    registerB = comboOperand & 7;
                     break;
                 }
                 case 3: {
@@ -71,31 +64,17 @@ public class Solver1 {
                 }
                 case 5: {
                     // OUT
-                    output.add(comboOperand % 8);
+                    output.add((int) (comboOperand & 7));
                     break;
                 }
                 case 6: {
                     // BDV
-                    double result = registerA / Library.Maths.powLong(2, comboOperand);
-                    if (result > Integer.MAX_VALUE) {
-                        registerB = Integer.MAX_VALUE;
-                    } else if (result < Integer.MIN_VALUE) {
-                        registerB = Integer.MIN_VALUE;
-                    } else {
-                        registerB = (int) result;
-                    }
+                    registerB = registerA >> comboOperand;
                     break;
                 }
                 case 7: {
                     // CDV
-                    double result = registerA / Library.Maths.powLong(2, comboOperand);
-                    if (result > Integer.MAX_VALUE) {
-                        registerC = Integer.MAX_VALUE;
-                    } else if (result < Integer.MIN_VALUE) {
-                        registerC = Integer.MIN_VALUE;
-                    } else {
-                        registerC = (int) result;
-                    }
+                    registerC = registerA >> comboOperand;
                     break;
                 }
             }
