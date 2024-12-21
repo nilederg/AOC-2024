@@ -98,7 +98,7 @@ public class Solver1 {
         return shortestPath;
     }
 
-    public static Map<String, Set<String>> increaseDepthMap = new HashMap<>();
+    public static Map<Tuple<Point2, Character>, Set<String>> increaseDepthMap = new HashMap<>();
     
     public static Set<String> increaseDepth(Set<String> betaPaths) {
         BoundedDimensionalList<Character> keypad = new BoundedDimensionalList<>(2, 3, 2);
@@ -113,8 +113,15 @@ public class Solver1 {
         for (String betaPath : betaPaths) {
             Point2 betaPoint = ADir.clone();
             for (Character betaChar : betaPath.toCharArray()) {
+                Set<String> gammaPathsFromBeta = null;
                 Point2 nextBetaPoint = Miscellaneous.getSingularItem(keypad.findAll(betaChar)).getB().toPoint2();
-                Set<String> gammaPathsFromBeta = robotFromDirKeyShift(betaPoint, nextBetaPoint);
+                Tuple<Point2, Character> key = new Tuple<>(betaPoint, betaChar);
+                if (increaseDepthMap.containsKey(key)) {
+                    gammaPathsFromBeta = increaseDepthMap.get(key);
+                } else {
+                    gammaPathsFromBeta = robotFromDirKeyShift(betaPoint, nextBetaPoint);
+                    increaseDepthMap.put(key, gammaPathsFromBeta);
+                }
                 betaPoint = nextBetaPoint;
                 Set<String> newGammaPaths = new HashSet<>();
                 for (String gammaPath : gammaPaths) {
