@@ -2,7 +2,7 @@ import Library.Quadruplet;
 import Management.Input;
 
 public class Inputs {
-    public static final int phase = 1;
+    public static final int phase = 2;
 
     // Sample data
     // A: Sample input

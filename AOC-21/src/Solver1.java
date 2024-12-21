@@ -58,12 +58,12 @@ public class Solver1 {
             for (char targetCharacter : chars) {
                 Point2 targetAlpha = Miscellaneous.getSingularItem(keypadAlpha.findAll(targetCharacter)).getB().toPoint2();
                 String shortestPathSegment = shortestInputForKeypadInput(alphaPosition, targetAlpha);
-                println(shortestPathSegment);
+                //println(shortestPathSegment);
                 shortestPath.append(shortestPathSegment);
                 alphaPosition = targetAlpha;
             }
             long complexity = (long) Integer.parseInt(line.substring(0, 3)) * shortestPath.length();
-            println(">>> ", line, " ", shortestPath.length(), " ", shortestPath.toString());
+            println("\n>>> ", line, " ", shortestPath.length(), " ", shortestPath.toString());
             sum += complexity;
         }
         return sum;
@@ -73,20 +73,17 @@ public class Solver1 {
         Set<String> betaPaths = robot1FromKeyShift(currentAlphaKey, nextAlphaKey);
         Set<String> gammaPaths = increaseDepth(betaPaths);
         Set<String> lambdaPaths = increaseDepth(gammaPaths);
-        println("A");
+        /*println("A");
         println(betaPaths.size() + " beta paths, " + gammaPaths.size() + " gamma paths, " + lambdaPaths.size() + " lambda paths");
         for (String path : betaPaths) {
             println("  Beta " + path);
-            break;
         }
         for (String path : gammaPaths) {
             println(" Gamma " + path);
-            break;
         }
         for (String path : lambdaPaths) {
             println("Lambda " + path);
-            break;
-        }
+        }*/
         int shortestPathLength = Integer.MAX_VALUE;
         String shortestPath = "";
         for (String lambdaPath : lambdaPaths) {
@@ -99,7 +96,7 @@ public class Solver1 {
     }
 
     public static Map<Tuple<Point2, Character>, Set<String>> increaseDepthMap = new HashMap<>();
-    
+
     public static Set<String> increaseDepth(Set<String> betaPaths) {
         BoundedDimensionalList<Character> keypad = new BoundedDimensionalList<>(2, 3, 2);
         keypad.set('^', 1, 0);
@@ -107,10 +104,12 @@ public class Solver1 {
         keypad.set('<', 0, 1);
         keypad.set('v', 1, 1);
         keypad.set('>', 2, 1);
+
         Point2 ADir = new Point2(2, 0);
-        Set<String> gammaPaths = new HashSet<>();
-        gammaPaths.add("");
+        Set<String> gammaPathsAll = new HashSet<>();
         for (String betaPath : betaPaths) {
+            Set<String> gammaPaths = new HashSet<>();
+            gammaPaths.add("");
             Point2 betaPoint = ADir.clone();
             for (Character betaChar : betaPath.toCharArray()) {
                 Set<String> gammaPathsFromBeta = null;
@@ -131,11 +130,12 @@ public class Solver1 {
                 }
                 gammaPaths = newGammaPaths;
             }
+            gammaPathsAll.addAll(gammaPaths);
         }
         /*int shortestPathLength = Integer.MAX_VALUE;
         String shortestPath = "";
         println("-----");
-        for (String gammaPath : gammaPaths) {
+        for (String gammaPath : gammaPathsAll) {
             println("Path " + gammaPath);
             if (gammaPath.length() < shortestPathLength) {
                 shortestPath = gammaPath;
@@ -144,13 +144,16 @@ public class Solver1 {
         }
         println("-----");
         gammaPaths = new HashSet<>();
-        gammaPaths.add(shortestPath);*/
-        return gammaPaths;
+        gammaPaths.add(shortestPath);
+        return gammaPaths*/
+        /*Set<String> gammaPaths = new HashSet<>();
+        gammaPaths.add(gammaPathsAll.iterator().next());*/
+        return gammaPathsAll;
     }
 
     public static Set<String> robot1FromKeyShift(Point2 currentAlphaKey, Point2 nextAlphaKey) {
         boolean bifurcateTree = true;
-        Boolean preferHorizontal = null;
+        Boolean preferHorizontal = true;
         if (currentAlphaKey.y == 3 && nextAlphaKey.x == 0) {
             bifurcateTree = false;
             preferHorizontal = false;
@@ -174,10 +177,14 @@ public class Solver1 {
             verticalString = "^".repeat(-vertical);
         }
 
+        if (horizontal > 0 && vertical < 0) {
+            bifurcateTree = false;
+        }
+
         String sH = horizontalString + verticalString + "A";
         String sV = verticalString + horizontalString + "A";
 
-        if (bifurcateTree) {
+        if (bifurcateTree && !sH.equals(sV)) {
             Set<String> results = new HashSet<>();
             results.add(sH);
             results.add(sV);
@@ -193,7 +200,14 @@ public class Solver1 {
         }
     }
 
+    public static Map<Tuple<Point2, Point2>, Set<String>> robotFromDirKeyShiftMap = new HashMap<>();
+
     public static Set<String> robotFromDirKeyShift(Point2 currentDirKey, Point2 nextDirKey) {
+        Tuple<Point2, Point2> key = new Tuple<>(currentDirKey, nextDirKey);
+        if (robotFromDirKeyShiftMap.containsKey(key)) {
+            return robotFromDirKeyShiftMap.get(key);
+        }
+
         BoundedDimensionalList<Character> keypad = new BoundedDimensionalList<>(2, 3, 2);
         keypad.set('^', 1, 0);
         keypad.set('A', 2, 0);
@@ -212,11 +226,12 @@ public class Solver1 {
         if (move.x == 0 && move.y == 0) {
             Set<String> results = new HashSet<>();
             results.add("A");
+            robotFromDirKeyShiftMap.put(key, results);
             return results;
         }
 
         boolean bifurcateTree = true;
-        Boolean preferHorizontal = null;
+        Boolean preferHorizontal = true;
         if (currentDirKey.y == 0 && nextDirKey.x == 0) {
             bifurcateTree = false;
             preferHorizontal = false;
@@ -239,13 +254,18 @@ public class Solver1 {
             verticalString = "^".repeat(-(int) move.y);
         }
 
+        if (move.x > 0 && move.y < 0) {
+            bifurcateTree = false;
+        }
+
         String sH = horizontalString + verticalString + "A";
         String sV = verticalString + horizontalString + "A";
 
-        if (bifurcateTree) {
+        if (bifurcateTree && !sH.equals(sV)) {
             Set<String> results = new HashSet<>();
             results.add(sH);
             results.add(sV);
+            robotFromDirKeyShiftMap.put(key, results);
             return results;
         } else {
             Set<String> results = new HashSet<>();
@@ -254,6 +274,7 @@ public class Solver1 {
             } else {
                 results.add(sV);
             }
+            robotFromDirKeyShiftMap.put(key, results);
             return results;
         }
     }
