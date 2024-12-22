@@ -30,7 +30,14 @@ public class Tuple <A,B> {
         if (!(other instanceof Tuple)) {
             return false;
         }
-        return (((Tuple<?, ?>) other).a.equals(this.a) && ((Tuple<?, ?>) other).b.equals(this.b));
+        Tuple<?, ?> otherTuple = (Tuple<?, ?>) other;
+        if (!otherTuple.getA().equals(this.getA())) {
+            return false;
+        }
+        if (!otherTuple.getB().equals(this.getB())) {
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -44,5 +51,10 @@ public class Tuple <A,B> {
         result = result * 31 + a.hashCode();
         result = result * 31 + b.hashCode();
         return result;
+    }
+
+    @Override
+    public Tuple<A, B> clone() {
+        return new Tuple<>(a, b);
     }
 }

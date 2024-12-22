@@ -91,6 +91,10 @@ public class Solver1 {
                 shortestPath = lambdaPath;
                 shortestPathLength = lambdaPath.length();
             }
+            if (shortestPathLength != Integer.MAX_VALUE && lambdaPath.length() != shortestPathLength) {
+                println("MISMATCH ", lambdaPath);
+                println("         ", shortestPath);
+            }
         }
         return shortestPath;
     }
@@ -263,7 +267,7 @@ public class Solver1 {
 
         if (bifurcateTree && !sH.equals(sV)) {
             Set<String> results = new HashSet<>();
-            results.add(sH);
+            //results.add(sH);
             results.add(sV);
             robotFromDirKeyShiftMap.put(key, results);
             return results;

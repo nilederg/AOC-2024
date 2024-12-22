@@ -74,9 +74,15 @@ public class Point2 {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Point2 pt) {
-            return (x == pt.x) && (y == pt.y);
+        if (this == obj) {
+            return true; // If they are the same object in memory
         }
-        return super.equals(obj);
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; // Null or different class
+        }
+
+        Point2 other = (Point2) obj; // Cast obj to Point2
+        return this.x == other.x && this.y == other.y; // Compare fields
     }
 }

@@ -3,9 +3,12 @@ import Management.Input;
 
 import java.util.*;
 
+import static Management.IO.forcePrintln;
 import static Management.IO.println;
 
 public class Solver2 {
+    public static int robots = 25;
+
     public static long Evaluate(Input input) {
         String[] lines = input.getLines();
 
@@ -22,84 +25,24 @@ public class Solver2 {
         keypadAlpha.set('0', 1, 3);
         keypadAlpha.set('A', 2, 3);
 
-        BoundedDimensionalList<Character> keypadBeta = new BoundedDimensionalList<>(2, 3, 2);
-        keypadBeta.set('^', 1, 0);
-        keypadBeta.set('A', 2, 0);
-        keypadBeta.set('<', 0, 1);
-        keypadBeta.set('v', 1, 1);
-        keypadBeta.set('>', 2, 1);
-
-        BoundedDimensionalList<Character> keypadGamma = new BoundedDimensionalList<>(2, 3, 2);
-        keypadGamma.set('^', 1, 0);
-        keypadGamma.set('A', 2, 0);
-        keypadGamma.set('<', 0, 1);
-        keypadGamma.set('v', 1, 1);
-        keypadGamma.set('>', 2, 1);
-
-        BoundedDimensionalList<Character> keypadLambda = new BoundedDimensionalList<>(2, 3, 2);
-        keypadLambda.set('^', 1, 0);
-        keypadLambda.set('A', 2, 0);
-        keypadLambda.set('<', 0, 1);
-        keypadLambda.set('v', 1, 1);
-        keypadLambda.set('>', 2, 1);
-
-        Map<Character, Vector2> movement = new HashMap<>();
-        movement.put('<', new Vector2(-1, 0));
-        movement.put('v', new Vector2(0, -1));
-        movement.put('^', new Vector2(0, 1));
-        movement.put('>', new Vector2(1, 0));
-
         Point2 alphaPosition = new Point2(2, 3);
         long sum = 0;
 
         for (String line : lines) {
             char[] chars = line.toCharArray();
-            StringBuilder shortestPath = new StringBuilder();
+            long shortestPath = 0L;
             for (char targetCharacter : chars) {
                 Point2 targetAlpha = Miscellaneous.getSingularItem(keypadAlpha.findAll(targetCharacter)).getB().toPoint2();
-                String shortestPathSegment = shortestInputForKeypadInput(alphaPosition, targetAlpha);
-                //println(shortestPathSegment);
-                shortestPath.append(shortestPathSegment);
+                long shortestPathSegment = shortestInputForKeypadInput(alphaPosition, targetAlpha);
+                //forcePrintln(shortestPathSegment);
+                shortestPath += shortestPathSegment;
                 alphaPosition = targetAlpha;
             }
-            long complexity = (long) Integer.parseInt(line.substring(0, 3)) * shortestPath.length();
-            println("\n>>> ", line, " ", shortestPath.length(), " ", shortestPath.toString());
+            long complexity = (long) Integer.parseInt(line.substring(0, 3)) * shortestPath;
+            println("\n>>> ", line, " ", shortestPath);
             sum += complexity;
         }
-        return sum;
-    }
 
-    public static String shortestInputForKeypadInput(Point2 currentAlphaKey, Point2 nextAlphaKey) {
-        Set<String> betaPaths = robot1FromKeyShift(currentAlphaKey, nextAlphaKey);
-        for (int i = 0; i < 25; i ++) {
-            Set<String> gammaPaths = increaseDepth(betaPaths);
-            betaPaths = Set.copyOf(gammaPaths);
-        }
-        /*println("A");
-        println(betaPaths.size() + " beta paths, " + gammaPaths.size() + " gamma paths, " + lambdaPaths.size() + " lambda paths");
-        for (String path : betaPaths) {
-            println("  Beta " + path);
-        }
-        for (String path : gammaPaths) {
-            println(" Gamma " + path);
-        }
-        for (String path : lambdaPaths) {
-            println("Lambda " + path);
-        }*/
-        int shortestPathLength = Integer.MAX_VALUE;
-        String shortestPath = "";
-        for (String betaPath : betaPaths) {
-            if (betaPath.length() < shortestPathLength) {
-                shortestPath = betaPath;
-                shortestPathLength = betaPath.length();
-            }
-        }
-        return shortestPath;
-    }
-
-    public static Map<Tuple<Point2, Character>, Set<String>> increaseDepthMap = new HashMap<>();
-
-    public static Set<String> increaseDepth(Set<String> betaPaths) {
         BoundedDimensionalList<Character> keypad = new BoundedDimensionalList<>(2, 3, 2);
         keypad.set('^', 1, 0);
         keypad.set('A', 2, 0);
@@ -107,65 +50,46 @@ public class Solver2 {
         keypad.set('v', 1, 1);
         keypad.set('>', 2, 1);
 
-        Point2 ADir = new Point2(2, 0);
-        Set<String> gammaPathsAll = new HashSet<>();
-        for (String betaPath : betaPaths) {
-            Set<String> gammaPaths = new HashSet<>();
-            gammaPaths.add("");
-            Point2 betaPoint = ADir.clone();
-            for (Character betaChar : betaPath.toCharArray()) {
-                Set<String> gammaPathsFromBeta = null;
-                Point2 nextBetaPoint = Miscellaneous.getSingularItem(keypad.findAll(betaChar)).getB().toPoint2();
-                Tuple<Point2, Character> key = new Tuple<>(betaPoint, betaChar);
-                if (increaseDepthMap.containsKey(key)) {
-                    gammaPathsFromBeta = increaseDepthMap.get(key);
-                } else {
-                    gammaPathsFromBeta = robotFromDirKeyShift(betaPoint, nextBetaPoint);
-                    increaseDepthMap.put(key, gammaPathsFromBeta);
-                }
-                betaPoint = nextBetaPoint;
-                Set<String> newGammaPaths = new HashSet<>();
-                for (String gammaPath : gammaPaths) {
-                    for (String gammaPathFromBeta : gammaPathsFromBeta) {
-                        newGammaPaths.add(gammaPath + gammaPathFromBeta);
-                    }
-                }
-                gammaPaths = newGammaPaths;
-            }
-            gammaPathsAll.addAll(gammaPaths);
-        }
-        /*int shortestPathLength = Integer.MAX_VALUE;
-        String shortestPath = "";
-        println("-----");
-        for (String gammaPath : gammaPathsAll) {
-            println("Path " + gammaPath);
-            if (gammaPath.length() < shortestPathLength) {
-                shortestPath = gammaPath;
-                shortestPathLength = gammaPath.length();
+        char[] keys = "^A<v>".toCharArray();
+        for (char keyA : keys) {
+            for (char keyB : keys) {
+                println(keyA, keyB, " ", mutatePairs(keyA, keyB));
             }
         }
-        println("-----");
-        gammaPaths = new HashSet<>();
-        gammaPaths.add(shortestPath);
-        return gammaPaths*/
-        /*Set<String> gammaPaths = new HashSet<>();
-        gammaPaths.add(gammaPathsAll.iterator().next());*/
-        return gammaPathsAll;
+
+        return sum;
     }
 
-    public static Set<String> robot1FromKeyShift(Point2 currentAlphaKey, Point2 nextAlphaKey) {
-        boolean bifurcateTree = true;
-        Boolean preferHorizontal = true;
-        if (currentAlphaKey.y == 3 && nextAlphaKey.x == 0) {
-            bifurcateTree = false;
-            preferHorizontal = false;
+    public static Map<Tuple<Point2, Point2>, Long> shortestInputForKeypadInputMap = new HashMap<>();
+
+    public static Long shortestInputForKeypadInput(Point2 currentAlphaKey, Point2 nextAlphaKey) {
+        Tuple<Point2, Point2> key = new Tuple<>(currentAlphaKey, nextAlphaKey);
+        if (shortestInputForKeypadInputMap.containsKey(key)) {
+            return shortestInputForKeypadInputMap.get(key);
         }
-        if (nextAlphaKey.y == 3 && currentAlphaKey.x == 0) {
-            bifurcateTree = false;
-            preferHorizontal = true;
+        String path = robot1FromKeyShift(currentAlphaKey, nextAlphaKey);
+        long shortestPath = Long.MAX_VALUE;
+        long pathLength = 0;
+        char prevChar = 'A';
+        for (char curChar : path.toCharArray()) {
+            //println("Pair ", prevChar, curChar);
+            Map<Tuple<Character, Character>, Long> pathMap = mutatePairsRecursive(prevChar, curChar, robots);
+            prevChar = curChar;
+            for (Map.Entry<Tuple<Character, Character>, Long> entry : pathMap.entrySet()) {
+                pathLength += entry.getValue();
+            }
         }
+        if (pathLength < shortestPath) {
+            shortestPath = pathLength;
+        }
+        shortestInputForKeypadInputMap.put(key, shortestPath);
+        return shortestPath;
+    }
+
+    public static String robot1FromKeyShift(Point2 currentAlphaKey, Point2 nextAlphaKey) {
         int horizontal = (int) (nextAlphaKey.x - currentAlphaKey.x);
         int vertical = (int) (nextAlphaKey.y - currentAlphaKey.y);
+        Vector2 move = Vector2.fromPoints(currentAlphaKey, nextAlphaKey);
         String horizontalString = null;
         String verticalString = null;
         if (horizontal > 0) {
@@ -179,32 +103,95 @@ public class Solver2 {
             verticalString = "^".repeat(-vertical);
         }
 
-        if (horizontal > 0 && vertical < 0) {
-            bifurcateTree = false;
-        }
-
         String sH = horizontalString + verticalString + "A";
         String sV = verticalString + horizontalString + "A";
 
-        if (bifurcateTree && !sH.equals(sV)) {
-            Set<String> results = new HashSet<>();
-            results.add(sH);
-            results.add(sV);
-            return results;
+        if (currentAlphaKey.y == 3 && nextAlphaKey.x == 0) {
+            return sV;
+        }
+        if (nextAlphaKey.y == 3 && currentAlphaKey.x == 0) {
+            return sH;
+        }
+
+        if (move.x == 0) {
+            return sV;
+        }
+        if (move.y == 0) {
+            return sH;
+        }
+
+        if (move.x > 0) {
+            return sV;
         } else {
-            Set<String> results = new HashSet<>();
-            if (preferHorizontal) {
-                results.add(sH);
-            } else {
-                results.add(sV);
-            }
-            return results;
+            return sH;
         }
     }
 
-    public static Map<Tuple<Point2, Point2>, Set<String>> robotFromDirKeyShiftMap = new HashMap<>();
+    public static <T> Map<T, Long> addMaps(Collection<Map<T, Long>> maps) {
+        Map<T, Long> result = new HashMap<>();
+        for (Map<T, Long> map : maps) {
+            for (T key : map.keySet()) {
+                if (!result.containsKey(key)) {
+                    result.put(key, 0L);
+                }
+                result.put(key, result.get(key) + map.get(key));
+            }
+        }
+        return result;
+    }
 
-    public static Set<String> robotFromDirKeyShift(Point2 currentDirKey, Point2 nextDirKey) {
+    public static Map<Tuple<Character, Character>, Long> mutatePairsRecursive(Character prev, Character next, int recursions) {
+        Map<Tuple<Character, Character>, Long> map = new HashMap<>();
+        map.put(new Tuple<>(prev, next), 1L);
+
+        for (int i = 0; i < recursions; i++) {
+            Map<Tuple<Character, Character>, Long> newMap = new HashMap<>();
+            for (Tuple<Character, Character> key : map.keySet()) {
+                long count = map.get(key);
+                //println("Pair ", key.getA(), key.getB(), " (", count, ")");
+                Map<Tuple<Character, Character>, Long> outputMap = mutatePairs(key.getA(), key.getB());
+                //println(outputMap.toString());
+                for (Tuple<Character, Character> outputKey : outputMap.keySet()) {
+                    if (!newMap.containsKey(outputKey)) {
+                        newMap.put(outputKey, 0L);
+                    }
+                    newMap.put(outputKey, newMap.get(outputKey) + count * outputMap.get(outputKey));
+                }
+            }
+            map = newMap;
+        }
+
+        return map;
+    }
+
+    public static Map<Tuple<Character, Character>, Long> mutatePairs(Character prev, Character next) {
+        BoundedDimensionalList<Character> keypad = new BoundedDimensionalList<>(2, 3, 2);
+        keypad.set('^', 1, 0);
+        keypad.set('A', 2, 0);
+        keypad.set('<', 0, 1);
+        keypad.set('v', 1, 1);
+        keypad.set('>', 2, 1);
+
+        Point2 prevPoint = Miscellaneous.getSingularItem(keypad.findAll(prev)).getB().toPoint2();
+        Point2 nextPoint = Miscellaneous.getSingularItem(keypad.findAll(next)).getB().toPoint2();
+
+        String path = robotFromDirKeyShift(prevPoint, nextPoint);
+        Character prevChar = 'A';
+        Map<Tuple<Character, Character>, Long> map = new HashMap<>();
+        for (Character curChar : path.toCharArray()) {
+            Tuple<Character, Character> key = new Tuple<>(prevChar, curChar);
+            prevChar = curChar;
+            if (!map.containsKey(key)) {
+                map.put(key, 0L);
+            }
+            map.put(key, map.get(key) + 1);
+        }
+        return map;
+    }
+
+    public static Map<Tuple<Point2, Point2>, String> robotFromDirKeyShiftMap = new HashMap<>();
+
+    public static String robotFromDirKeyShift(Point2 currentDirKey, Point2 nextDirKey) {
         Tuple<Point2, Point2> key = new Tuple<>(currentDirKey, nextDirKey);
         if (robotFromDirKeyShiftMap.containsKey(key)) {
             return robotFromDirKeyShiftMap.get(key);
@@ -217,30 +204,12 @@ public class Solver2 {
         keypad.set('v', 1, 1);
         keypad.set('>', 2, 1);
 
-        Map<Character, Vector2> movement = new HashMap<>();
-        movement.put('<', new Vector2(-1, 0));
-        movement.put('v', new Vector2(0, -1));
-        movement.put('^', new Vector2(0, 1));
-        movement.put('>', new Vector2(1, 0));
-
         Vector2 move = Vector2.fromPoints(currentDirKey, nextDirKey);
 
         if (move.x == 0 && move.y == 0) {
-            Set<String> results = new HashSet<>();
-            results.add("A");
+            String results = "A";
             robotFromDirKeyShiftMap.put(key, results);
             return results;
-        }
-
-        boolean bifurcateTree = true;
-        Boolean preferHorizontal = true;
-        if (currentDirKey.y == 0 && nextDirKey.x == 0) {
-            bifurcateTree = false;
-            preferHorizontal = false;
-        }
-        if (nextDirKey.y == 3 && currentDirKey.x == 0) {
-            bifurcateTree = false;
-            preferHorizontal = true;
         }
 
         String horizontalString = null;
@@ -256,28 +225,33 @@ public class Solver2 {
             verticalString = "^".repeat(-(int) move.y);
         }
 
-        if (move.x > 0 && move.y < 0) {
-            bifurcateTree = false;
-        }
-
         String sH = horizontalString + verticalString + "A";
         String sV = verticalString + horizontalString + "A";
 
-        if (bifurcateTree && !sH.equals(sV)) {
-            Set<String> results = new HashSet<>();
-            results.add(sH);
-            results.add(sV);
-            robotFromDirKeyShiftMap.put(key, results);
-            return results;
+        if (currentDirKey.x == 0) {
+            robotFromDirKeyShiftMap.put(key, sH);
+            return sH;
+        }
+        if (nextDirKey.x == 0) {
+            robotFromDirKeyShiftMap.put(key, sV);
+            return sV;
+        }
+
+        if (move.x == 0) {
+            robotFromDirKeyShiftMap.put(key, sV);
+            return sV;
+        }
+        if (move.y == 0) {
+            robotFromDirKeyShiftMap.put(key, sH);
+            return sH;
+        }
+
+        if (move.x > 0) {
+            robotFromDirKeyShiftMap.put(key, sV);
+            return sV;
         } else {
-            Set<String> results = new HashSet<>();
-            if (preferHorizontal) {
-                results.add(sH);
-            } else {
-                results.add(sV);
-            }
-            robotFromDirKeyShiftMap.put(key, results);
-            return results;
+            robotFromDirKeyShiftMap.put(key, sH);
+            return sH;
         }
     }
 }

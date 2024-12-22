@@ -2,7 +2,7 @@ import Library.Quadruplet;
 import Management.Input;
 
 public class Inputs {
-    public static final int phase = 2;
+    public static final int phase = 1;
 
     // Sample data
     // A: Sample input
@@ -18,7 +18,7 @@ public class Inputs {
                             "456A\n" +
                             "379A"
                     , (Object) 126384L
-                    , (Object) null
+                    , (Object) 154115708116294L
                     , (Boolean) true
             ),
             new Quadruplet<>(
@@ -36,9 +36,12 @@ public class Inputs {
     };
     // Puzzle data
     public static final long[] tooLow1  = new long[] {};
-    public static final long[] tooHigh1 = new long[] {190903L};
+    public static final long[] tooHigh1 = new long[] {190903L, 141027L};
     public static final long[] tooLow2  = new long[] {};
-    public static final long[] tooHigh2 = new long[] {};
+    public static final long[] tooHigh2 = new long[] {
+            454009326465539612L,
+            132976252999824924L,
+            32976252999824924L};
     public static final boolean printTrueData = false;
     public static final String trueData = "" +
             "805A\n" +
