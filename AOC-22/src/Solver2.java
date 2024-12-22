@@ -12,7 +12,13 @@ public class Solver2 {
 
         if (sessions != 0) {
             long avgTime = Math.round((float) sumTime / sessions);
-            forcePrintln("Predicted compute time: " + ((avgTime * data.length) / 1000) + " seconds");
+            int expectedTimeSec = (int) ((avgTime * data.length) / 1000);
+            if (expectedTimeSec <= 90) {
+                forcePrintln("Predicted compute time: " + expectedTimeSec + " seconds");
+            } else {
+                int expectedTimeMin = Math.round((float) expectedTimeSec / 60);
+                forcePrintln("Predicted compute time: " + expectedTimeMin + " minutes");
+            }
         }
 
         Tuple<long[], long[]>[] information = new Tuple[data.length];
@@ -39,8 +45,8 @@ public class Solver2 {
         long endTime = System.currentTimeMillis();
         double timePerLine = (double) (endTime - startTime) / data.length;
         long timePerLineMS = Math.round(timePerLine);
-        sumTime += timePerLineMS;
-        sessions++;
+        sumTime += Math.round(timePerLine * data.length);
+        sessions += data.length;
         forcePrintln(timePerLineMS, " ms per line");
 
         return mostBananas;
